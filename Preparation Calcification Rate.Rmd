@@ -121,18 +121,8 @@ rm(Ta_time, TA_frag, TA_control, Ta_time_cont, TA_cat, TA, Biomass, Conspe, Fami
 
 
 ---------- Calculate G (Calcification) ----------
-Use Calcification Formula for G (calcification rate =  dif TA/2(umol/l) * incubation volumn(L) * water density (kg/L)/ Zeit(h) * surface corals(cm^2))
-```{r}
-# to calculate water density we need pressure, temperatur and salinity
-TA_comp$pressure <- 10.186 # pressure is an average of the days
-TA_comp$Temp <- 26 # temperature is an average of the days. Use temperature from the incubation not the titrator here (See Schneider and Erez 2006 (used seawater density from the seawater directly not the titrator))
-
-# Sea waterdensity calculation with the package oce and the function swRho
-# Salinity was measured every morning from the start bucket
-TA_comp <- TA_comp %>% 
-  mutate(Sea_water_density = oce::swRho(salinity = S, temperature = Temp, pressure = pressure)/1000) %>% 
-  mutate(Sea_water_density = round(Sea_water_density, 5))
-```
+Use Calcification Formula for G (calcification rate =  dif TA/2(umol/l) * incubation volumn(L)/ Zeit(h) * surface corals(cm^2))
+(seawaterdensity is already part of TA calculations, therefore not necessary in calcification formula here)
 
 ```{r}
 # Calculate Incubation times
@@ -140,7 +130,7 @@ TA_comp$time_L_h <- time_length(TA_comp$time_end_L- TA_comp$time_start_L, unit =
 
 #use formula 
 TA_comp <- TA_comp %>%
-  mutate(Calc_umol_h = (((TA_umolL_con - TA_umolL)/2) * 1.00036 * Sea_water_density) / time_L_h) # mean incubation volume (1.00036) is used
+  mutate(Calc_umol_h = (((TA_umolL_con - TA_umolL)/2) * 1.00036) / time_L_h) # mean incubation volume (1.00036) is used
 # we use Controls as Start water, real start water was not measured. Yet, we double checked in pilot study and start and control are very similar (-4 until +4 umol/h in controls)
 ```
 
